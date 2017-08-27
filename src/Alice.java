@@ -3,39 +3,72 @@ import java.util.concurrent.Exchanger;
 import static java.lang.Math.pow;
 
 /**
- * Created by User on 029 29.06.17.
+ * Class that implements one of threads which want to exchange data.
+ *
+ * @author Karzykin Denis
  */
-public class Alice implements Runnable {
-    private final static Object lock = new Object();
-    Exchanger<Double> exchanger;
-    double message;
-    double p;
-    double generator;
-    double random = 54;
-    double privateKey;
-    int answer;
-    Alice(Exchanger ex, long p, long generator){
-        this.p = p;
+public final class Alice implements Runnable {
+    /**
+     * Time delay in milliseconds.
+     */
+    private static final int TIMEOUT = 6;
+    /**
+     * Random number.
+     */
+    private static final int RANDOM = 54;
+    /**
+     * Synchronize lock object.
+     */
+    private static final Object LOCK = new Object();
+    /**
+     * Exchanger object.
+     */
+    private Exchanger<Double> exchanger;
+    /**
+     * Shared key.
+     */
+    private double message;
+    /**
+     * Public (prime) base.
+     */
+    private double generator;
+
+    /**
+     * @param ex        exchanger
+     * @param p         public (prime) modulus
+     * @param generator public (prime) base
+     */
+    Alice(final Exchanger ex, final long p, final long generator) {
         this.generator = generator;
-        this.exchanger=ex;
-        message = pow(p, random)%generator;
+        this.exchanger = ex;
+        message = pow(p, RANDOM) % generator;
     }
-    public void run(){
-        try{
-            synchronized (lock){
-                System.out.println("Alice send "+ message);
-                message=exchanger.exchange(message);
-                System.out.println("Alice receive "+ message);
-                lock.wait(6);
+
+    /**
+     * Run thread.
+     */
+    public void run() {
+        double privateKey;
+        try {
+            synchronized (LOCK) {
+                System.out.println("Alice send " + message);
+                message = exchanger.exchange(message);
+                System.out.println("Alice receive " + message);
+                LOCK.wait(TIMEOUT);
             }
-            privateKey = check(random,message);
+            privateKey = getPassword(RANDOM, message);
             System.out.println("Alice private key is " + privateKey);
-        }
-        catch(InterruptedException ex){
+        } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
         }
     }
-    double check (double password, double message){
-        return pow(message,password)%generator;
+
+    /**
+     * @param privateKey secret number.
+     * @param message    received public number
+     * @return password
+     */
+    private double getPassword(final double privateKey, final double message) {
+        return pow(message, privateKey) % generator;
     }
 }
