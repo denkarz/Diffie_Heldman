@@ -15,7 +15,7 @@ Multithread algorithm implementation
 ```sh
 java -jar <PATH TO JAR FILE>
 ```
-JAR file is located in `executable_files` folder
+JAR file is located in `executable_files` folder<br />
 3. After press  `Enter` next lines will appear:
 ```sh
 C:\Users\User> java -jar C:\Users\User\IdeaProjects\Diffie_Heldman\executable_files\Diffie_Heldman.jar
